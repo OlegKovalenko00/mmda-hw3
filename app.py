@@ -11,21 +11,22 @@ from sklearn import metrics
 
 BASE = Path(__file__).resolve().parent
 sys.path.insert(0, str(BASE))
-COLORS = ['#742C45', '#3D6B62']
-MUTED = '#817178'
-WINE_CMAP = LinearSegmentedColormap.from_list('wine', ['#FEF4F2', '#D69BAD', '#742C45'])
+COLORS = ['#D785A0', '#B7A4C5']
+MUTED = '#AA98A4'
+WINE_CMAP = LinearSegmentedColormap.from_list('wine', ['#292027', '#58283D', '#82334D'])
 plt.rcParams.update({
-    'figure.facecolor': '#FBF6F3',
-    'axes.facecolor': '#FFFDFC',
-    'axes.edgecolor': '#DED0D5',
-    'axes.titlecolor': '#742C45',
-    'axes.labelcolor': '#30242A',
-    'text.color': '#30242A',
-    'xtick.color': '#55464D',
-    'ytick.color': '#55464D',
-    'grid.color': '#E7D9DC',
-    'legend.facecolor': '#FFFDFC',
-    'legend.edgecolor': '#DED0D5',
+    'figure.facecolor': '#141015',
+    'axes.facecolor': '#292027',
+    'axes.edgecolor': '#685460',
+    'axes.titlecolor': '#F0E5E9',
+    'axes.labelcolor': '#F0E5E9',
+    'text.color': '#F0E5E9',
+    'xtick.color': '#F0E5E9',
+    'ytick.color': '#F0E5E9',
+    'grid.color': '#493946',
+    'legend.facecolor': '#292027',
+    'legend.edgecolor': '#685460',
+    'legend.labelcolor': '#F0E5E9',
 })
 
 
@@ -95,7 +96,10 @@ with single:
     sample = pd.DataFrame([values], columns=features.columns)
     probability = float(model.predict_proba(sample)[0, 1])
     st.metric('Вероятность хорошего вина', f'{probability:.1%}')
-    st.success('Включить в подборку') if probability >= threshold else st.info('Не включать в подборку')
+    if probability >= threshold:
+        st.success('Включить в подборку')
+    else:
+        st.info('Не включать в подборку')
 
 with evaluation:
     score = test_probability(model, features)
@@ -110,7 +114,9 @@ with evaluation:
     st.caption('При увеличении порога подборка становится строже и обычно меньше. '
                'При уменьшении в неё попадает больше хороших вин, но могут добавиться посредственные')
     fig, ax = plt.subplots(figsize=(5, 3))
-    metrics.ConfusionMatrixDisplay(matrix, display_labels=['Остальные', 'Хорошие']).plot(ax=ax, cmap=WINE_CMAP)
+    metrics.ConfusionMatrixDisplay(matrix, display_labels=['Остальные', 'Хорошие']).plot(
+        ax=ax, cmap=WINE_CMAP, text_kw={'color': '#F0E5E9'}
+    )
     ax.set(xlabel='Предсказанный класс', ylabel='Настоящий класс', title=f'Ошибки отбора при пороге {threshold:.3f}')
     fig.tight_layout()
     st.pyplot(fig)
